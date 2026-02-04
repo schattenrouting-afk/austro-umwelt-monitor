@@ -58,4 +58,4 @@ Wichtige Stellen:
 - Google Sheets (Cache/Measures als Datenspeicher)
 
 ## Lizenz
-Private Nutzung / Prototyp (bei Bedarf hier anpassen).
+Private Nutzung / Prototyp.
