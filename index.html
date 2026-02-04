@@ -51,7 +51,7 @@
       box-shadow:0 6px 18px rgba(0,0,0,0.15);
       border:1px solid rgba(0,0,0,0.08);
       min-width:360px;
-      max-width:400px;
+      max-width:420px;
     }
     .panel.collapsed{ display:none; }
 
@@ -63,11 +63,17 @@
       background:#fff;
       border:1px solid rgba(0,0,0,0.08);
       border-radius:10px;
-      padding:6px 8px;
-      margin:0 0 8px;
+      padding:8px 10px;
+      margin:0 0 10px;
       display:flex;
+      flex-direction:column;
       gap:6px;
+    }
+    .activeRow{
+      display:flex;
+      gap:8px;
       align-items:center;
+      min-width:0;
     }
     .badge{
       display:inline-block;
@@ -78,12 +84,36 @@
       border:1px solid rgba(0,0,0,0.08);
       color:#222;
       white-space:nowrap;
+      flex:0 0 auto;
     }
     .activeName{
       font-weight:700;
       overflow:hidden;
       text-overflow:ellipsis;
       white-space:nowrap;
+      min-width:0;
+      flex:1 1 auto;
+    }
+    .activeSub{
+      font-size:12px;
+      color:#333;
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      display:inline-block;
+      font-size:11px;
+      padding:2px 8px;
+      border-radius:999px;
+      background:rgba(0,0,0,0.04);
+      border:1px solid rgba(0,0,0,0.08);
+      color:#222;
+      white-space:nowrap;
+    }
+    .pill.disabled{
+      opacity:0.45;
     }
 
     .row{ display:flex; gap:8px; align-items:center; margin:8px 0; }
@@ -99,22 +129,45 @@
     .btn:hover{ background:#f7f7f7; }
     .sep{ height:1px; background:#eee; margin:10px 0; }
 
-    .warnGrid{
+    .sectionTitle{
+      font-size:12px;
+      color:#222;
+      margin:10px 0 6px;
+      font-weight:700;
+    }
+
+    /* Radio grids */
+    .radioGrid{
       display:grid;
       grid-template-columns: 18px 1fr 18px 1fr;
       gap:8px 10px;
       align-items:center;
       margin-top:6px;
     }
-    .warnGrid input[type="radio"]{
+    .radioGrid.oneCol{
+      grid-template-columns: 18px 1fr;
+    }
+    .radioGrid input[type="radio"]{
       margin:0;
       transform: translateY(1px);
     }
-    .warnLabel{
+    .radioLabel{
       font-size:12px;
       color:#222;
       line-height:1.1;
       user-select:none;
+    }
+    .radioLabel small{
+      display:block;
+      font-size:11px;
+      color:#666;
+      margin-top:2px;
+      line-height:1.2;
+    }
+
+    .radioGrid.disabled{
+      opacity:0.55;
+      pointer-events:none;
     }
 
     .chip{ display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; color:#fff; margin:0 6px 6px 0; }
@@ -184,42 +237,43 @@
       <h1>AT Umwelt & Wetter – Bezirke + Städte</h1>
 
       <div class="activeMetric">
-        <span class="badge">Aktiv</span>
-        <span class="activeName" id="activeMetricName">Feinstaub (PM10)</span>
+        <div class="activeRow">
+          <span class="badge">Aktiv</span>
+          <span class="activeName" id="activeMetricName">Feinstaub (PM10)</span>
+        </div>
+        <div class="activeSub">
+          <span class="pill" id="activeAggPill">Bezirkswert: Höchster Wert (Worst Case)</span>
+          <span class="pill" id="activeLabelPill">Labels ab Zoom 10</span>
+        </div>
       </div>
 
-      <div class="row">
-        <label>Wetter</label>
-        <select id="metricWeather"></select>
-      </div>
+      <div class="sectionTitle">Kennzahl auswählen</div>
 
-      <div class="row">
-        <label>Luft (Fläche)</label>
-        <select id="metricAir"></select>
-      </div>
+      <div class="sectionTitle" style="margin-top:6px;">Wetter</div>
+      <div class="radioGrid" id="metricWeatherRadios"></div>
 
-      <div class="row">
-        <label>Pollen</label>
-        <select id="metricPollen"></select>
+      <div class="sectionTitle">Luft (Fläche)</div>
+      <div class="radioGrid" id="metricAirRadios"></div>
+
+      <div class="sectionTitle">Pollen</div>
+      <div class="radioGrid oneCol" id="metricPollenRadios"></div>
+
+      <div class="sectionTitle">Warnstufen</div>
+      <div class="radioGrid" id="metricWarnRadios"></div>
+
+      <div class="sep"></div>
+
+      <div class="sectionTitle">Bezirkswert (Aggregation)</div>
+      <div class="radioGrid oneCol" id="aggRadios"></div>
+      <div style="font-size:11px;color:#666;margin-top:6px;">
+        Hinweis: Aggregation wirkt nur bei numerischen Werten (z.B. PM10, Temperatur). Bei Warnstufen/Texten wird automatisch „Worst Case“ verwendet.
       </div>
 
       <div class="sep"></div>
-      <div style="font-size:12px; color:#333; margin-bottom:6px;"><strong>Warnstufen</strong></div>
-      <div class="warnGrid" id="warnRadios"></div>
 
-      <div class="sep"></div>
-
-      <div class="row">
-        <label>Bezirkswert</label>
-        <select id="aggSelect">
-          <option value="max" selected>Höchster Wert (Worst Case)</option>
-          <option value="mean">Durchschnitt</option>
-          <option value="min">Niedrigster Wert</option>
-        </select>
-      </div>
-
-      <div class="row">
-        <label>Stadt suchen</label>
+      <div class="sectionTitle">Ortssuche</div>
+      <div class="row" style="margin-top:6px;">
+        <label>Stadt</label>
         <input id="citySearch" list="cityList" placeholder="z.B. Graz, Wien, Krems ..." />
         <datalist id="cityList"></datalist>
       </div>
@@ -228,6 +282,8 @@
         <button class="btn" id="btnSearch">Suchen</button>
         <button class="btn" id="btnReset">Reset</button>
       </div>
+
+      <div class="sep"></div>
 
       <div class="row">
         <label>Kartenauswahl</label>
@@ -263,8 +319,10 @@
     // =============================
     // CONFIG
     // =============================
-    // WICHTIG: deine funktionierende GAS WebApp URL
     const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz10d2b41DIKuGmKtuN2fJOU8HfIZJv2IIbzQ8lqmFIKTnwdVZTDyAWqdEdVg7Ry7T2uw/exec";
+
+    // Labels erst ab dieser Zoom-Stufe anzeigen
+    const CITY_LABEL_MIN_ZOOM = 10;
 
     // =============================
     // JSONP helper
@@ -387,10 +445,11 @@
     function metricInfo(id){ return allMetricInfos().find(m => m.id === id); }
 
     // =============================
-    // State + READY flag
+    // State
     // =============================
     let APP_READY = false;
     let currentMetricId = "pm10";
+    let currentAggMode = "max";
 
     let districtsGeo = null;
     let cacheRows = [];
@@ -401,74 +460,156 @@
     let labelLayer = null;
 
     // =============================
-    // UI wiring
+    // UI references
     // =============================
     const activeMetricNameEl = document.getElementById("activeMetricName");
-    const metricWeather = document.getElementById("metricWeather");
-    const metricAir = document.getElementById("metricAir");
-    const metricPollen = document.getElementById("metricPollen");
-    const warnRadios = document.getElementById("warnRadios");
+    const activeAggPillEl = document.getElementById("activeAggPill");
+    const activeLabelPillEl = document.getElementById("activeLabelPill");
+
+    activeLabelPillEl.textContent = `Labels ab Zoom ${CITY_LABEL_MIN_ZOOM}`;
+
+    const metricWeatherRadios = document.getElementById("metricWeatherRadios");
+    const metricAirRadios = document.getElementById("metricAirRadios");
+    const metricPollenRadios = document.getElementById("metricPollenRadios");
+    const metricWarnRadios = document.getElementById("metricWarnRadios");
+    const aggRadios = document.getElementById("aggRadios");
 
     const citySearch = document.getElementById("citySearch");
     const cityList = document.getElementById("cityList");
 
-    function fillSelect(sel, items, selectedId){
-      sel.innerHTML = "";
-      items.forEach(m => {
-        const opt = document.createElement("option");
-        opt.value = m.id;
-        opt.textContent = m.label;
-        sel.appendChild(opt);
-      });
-      sel.value = selectedId;
-    }
+    // =============================
+    // Radio builders
+    // =============================
+    function buildMetricRadios(container, items, options){
+      container.innerHTML = "";
+      const name = (options && options.name) ? options.name : "metricMain";
 
-    function buildWarnRadios(selectedId){
-      warnRadios.innerHTML = "";
-      METRICS.warns.forEach((m) => {
-        const id = "r_" + m.id;
+      items.forEach((m) => {
+        const id = (options && options.idPrefix ? options.idPrefix : "m_") + m.id;
 
         const input = document.createElement("input");
         input.type = "radio";
-        input.name = "warnMetric";
+        input.name = name;
         input.id = id;
         input.value = m.id;
 
         const label = document.createElement("label");
-        label.className = "warnLabel";
+        label.className = "radioLabel";
         label.htmlFor = id;
         label.textContent = m.label;
 
-        warnRadios.appendChild(input);
-        warnRadios.appendChild(label);
+        container.appendChild(input);
+        container.appendChild(label);
+      });
+    }
+
+    function buildAggRadios(){
+      aggRadios.innerHTML = "";
+
+      const defs = [
+        { id:"max",  label:"Höchster Wert (Worst Case)", hint:"zeigt den kritischsten Messwert im Bezirk" },
+        { id:"mean", label:"Durchschnitt", hint:"mittlere Belastung im Bezirk" },
+        { id:"min",  label:"Niedrigster Wert", hint:"bestmöglicher Messwert im Bezirk" }
+      ];
+
+      defs.forEach((d) => {
+        const id = "a_" + d.id;
+
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.name = "aggMode";
+        input.id = id;
+        input.value = d.id;
+
+        const label = document.createElement("label");
+        label.className = "radioLabel";
+        label.htmlFor = id;
+        label.innerHTML = `${d.label}<small>${d.hint}</small>`;
+
+        aggRadios.appendChild(input);
+        aggRadios.appendChild(label);
       });
 
-      const pre = document.querySelector(`input[name="warnMetric"][value="${selectedId}"]`);
+      const pre = document.querySelector(`input[name="aggMode"][value="${currentAggMode}"]`);
       if (pre) pre.checked = true;
+    }
+
+    // Build radios (all metrics share name="metricMain" => immer klar: genau 1 aktiv)
+    buildMetricRadios(metricWeatherRadios, METRICS.weather, { name:"metricMain", idPrefix:"mw_" });
+    buildMetricRadios(metricAirRadios, METRICS.air, { name:"metricMain", idPrefix:"ma_" });
+    buildMetricRadios(metricPollenRadios, METRICS.pollen, { name:"metricMain", idPrefix:"mp_" });
+    buildMetricRadios(metricWarnRadios, METRICS.warns, { name:"metricMain", idPrefix:"mx_" });
+
+    buildAggRadios();
+
+    // Preselect default
+    const preMetric = document.querySelector(`input[name="metricMain"][value="${currentMetricId}"]`);
+    if (preMetric) preMetric.checked = true;
+
+    // =============================
+    // Active selection display
+    // =============================
+    function aggLabel(mode){
+      if (mode === "mean") return "Bezirkswert: Durchschnitt";
+      if (mode === "min") return "Bezirkswert: Niedrigster Wert";
+      return "Bezirkswert: Höchster Wert (Worst Case)";
+    }
+
+    function updateActiveHeader(){
+      const info = metricInfo(currentMetricId);
+      activeMetricNameEl.textContent = info ? info.label : currentMetricId;
+      activeAggPillEl.textContent = aggLabel(currentAggMode);
+    }
+
+    function updateAggAvailability(){
+      const info = metricInfo(currentMetricId);
+      const isNumeric = info && info.type === "numeric";
+
+      if (!isNumeric) {
+        // Aggregation macht hier keinen Sinn -> fix max (Worst Case)
+        currentAggMode = "max";
+        const maxRadio = document.querySelector(`input[name="aggMode"][value="max"]`);
+        if (maxRadio) maxRadio.checked = true;
+
+        aggRadios.classList.add("disabled");
+        activeAggPillEl.classList.add("disabled");
+        activeAggPillEl.textContent = "Bezirkswert: Worst Case (automatisch)";
+      } else {
+        aggRadios.classList.remove("disabled");
+        activeAggPillEl.classList.remove("disabled");
+        activeAggPillEl.textContent = aggLabel(currentAggMode);
+      }
     }
 
     function setActiveMetric(id){
       currentMetricId = id;
-      const info = metricInfo(id);
-      activeMetricNameEl.textContent = info ? info.label : id;
+      updateAggAvailability();
+      updateActiveHeader();
       if (APP_READY) renderAll();
     }
 
-    // Fill UI
-    fillSelect(metricWeather, METRICS.weather, "t_c_max");
-    fillSelect(metricAir, METRICS.air, "pm10");
-    fillSelect(metricPollen, METRICS.pollen, "pollen_level");
-    buildWarnRadios("overall_level");
+    function setAggMode(mode){
+      currentAggMode = mode;
+      updateAggAvailability();
+      updateActiveHeader();
+      if (APP_READY) renderAll();
+    }
 
-    metricAir.value = "pm10";
-    setActiveMetric("pm10");
+    // Listeners
+    document.addEventListener("change", (e) => {
+      if (!e.target) return;
 
-    metricWeather.addEventListener("change", () => setActiveMetric(metricWeather.value));
-    metricAir.addEventListener("change", () => setActiveMetric(metricAir.value));
-    metricPollen.addEventListener("change", () => setActiveMetric(metricPollen.value));
-    warnRadios.addEventListener("change", (e) => {
-      if (e.target && e.target.name === "warnMetric") setActiveMetric(e.target.value);
+      if (e.target.name === "metricMain") {
+        setActiveMetric(e.target.value);
+      }
+      if (e.target.name === "aggMode") {
+        setAggMode(e.target.value);
+      }
     });
+
+    // Init header
+    updateAggAvailability();
+    updateActiveHeader();
 
     // =============================
     // Helpers
@@ -555,6 +696,7 @@
         return Math.max(...nums);
       }
 
+      // text: kein sinnvoller Bezirkswert -> null
       return null;
     }
 
@@ -568,6 +710,24 @@
     }
 
     // =============================
+    // City labels: show only at zoom >= CITY_LABEL_MIN_ZOOM
+    // =============================
+    function shouldShowCityLabels(){
+      return map.getZoom() >= CITY_LABEL_MIN_ZOOM;
+    }
+
+    function updateLabelVisibility(){
+      if (!labelLayer) return;
+      const show = shouldShowCityLabels();
+      const has = map.hasLayer(labelLayer);
+
+      if (show && !has) labelLayer.addTo(map);
+      if (!show && has) map.removeLayer(labelLayer);
+    }
+
+    map.on("zoomend", updateLabelVisibility);
+
+    // =============================
     // Render
     // =============================
     function renderAll(){
@@ -575,11 +735,16 @@
 
       const metricId = currentMetricId;
       const info = metricInfo(metricId);
-      const aggMode = document.getElementById("aggSelect").value;
+
+      // AggMode für non-numeric ignorieren (wird ohnehin fix auf max gesetzt)
+      const aggMode = currentAggMode;
 
       if (districtLayer) districtLayer.remove();
       if (cityLayer) cityLayer.remove();
-      if (labelLayer) labelLayer.remove();
+      if (labelLayer) {
+        if (map.hasLayer(labelLayer)) map.removeLayer(labelLayer);
+        labelLayer.remove();
+      }
 
       districtLayer = L.geoJSON(districtsGeo, {
         style: (feature) => {
@@ -597,14 +762,17 @@
             : "Bezirk";
           const v = aggregateForDistrict(feature, cacheRows, metricId, aggMode);
           const label = info ? info.label : metricId;
-          const txt = (v == null) ? "–" : valueLabel(metricId, v);
 
-          layer.bindPopup(`<strong>${escapeHtml(name)}</strong><br>${escapeHtml(label)}: <strong>${escapeHtml(txt)}</strong>`);
+          let txt = "–";
+          if (v != null) txt = valueLabel(metricId, v);
+
+          // Für Text-Metriken bleibt Bezirkswert leer – Popup trotzdem sauber
+          layer.bindPopup(`<strong>${escapeHtml(name)}</strong><br>${escapeHtml(label)}: <strong>${escapeHtml(String(txt))}</strong>`);
         }
       }).addTo(map);
 
       cityLayer = L.layerGroup().addTo(map);
-      labelLayer = L.layerGroup().addTo(map);
+      labelLayer = L.layerGroup(); // wird je nach Zoom eingeblendet
 
       cacheRows.forEach(r => {
         const c = L.circleMarker([r.lat, r.lon], {
@@ -622,6 +790,8 @@
         });
         L.marker([r.lat, r.lon], { icon, interactive:false, keyboard:false }).addTo(labelLayer);
       });
+
+      updateLabelVisibility();
     }
 
     function buildCityPopup(r){
@@ -703,7 +873,7 @@
 
       const hit = cacheRows.find(r => String(r.city||"").trim().toLowerCase() === q);
       if (!hit) { alert("Stadt nicht gefunden: " + name); return; }
-      map.setView([hit.lat, hit.lon], 11);
+      map.setView([hit.lat, hit.lon], Math.max(map.getZoom(), CITY_LABEL_MIN_ZOOM)); // bei Suche direkt in Label-Zoom springen
     }
 
     document.getElementById("btnSearch").addEventListener("click", () => zoomToCity(citySearch.value));
@@ -711,14 +881,13 @@
       if (ev.key === "Enter") { ev.preventDefault(); zoomToCity(citySearch.value); }
     });
     document.getElementById("btnReset").addEventListener("click", () => map.setView([47.6, 14.2], 7));
-    document.getElementById("aggSelect").addEventListener("change", () => { if (APP_READY) renderAll(); });
 
     // =============================
     // BOOT
     // =============================
     async function boot(){
       try{
-        // 1) Bezirke aus GAS laden (JSONP) statt lokale GeoJSON-Datei
+        // 1) Bezirke aus GAS laden (JSONP)
         const gj = await jsonp(GAS_WEBAPP_URL, { action: "bezirke_geojson" });
         if (!gj || gj.type !== "FeatureCollection") throw new Error("bezirke_geojson: kein FeatureCollection erhalten");
 
