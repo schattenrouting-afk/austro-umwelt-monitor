@@ -1,2 +1,1 @@
-# austro-umwelt-monitor
-Frontend für den AustroUmwelt Monitor
+Interaktive Österreich-Karte für Wetter-, Luft- und Pollenbelastung – Bezirke & Städte. Daten via Google Apps Script + Sheets.
